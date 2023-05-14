@@ -956,7 +956,6 @@ class Example(QMainWindow,Ui_MainWindow):
 
 
 
-
     def setSlot(self):
         pass
 
