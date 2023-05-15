@@ -203,7 +203,7 @@ def make_word(file_path,search_start):
         title_list=[title]
     new_keyword_first = []
     for title_elem in title_list:
-        tails = ['은', '는', '도',' 또한']
+        tails = ['은', '는', '도',' 또한','이','가',' 역시']
         for tail in tails:
             result1 = name + tail
             result2 = name + " " + title_elem + tail
@@ -359,7 +359,7 @@ def make_word(file_path,search_start):
         for index, split_text in enumerate(split_texts):
 
             if index % 2 == determinant:
-                para.add_run(split_text).font.color.rgb = RGBColor(0xFF, 0x24, 0xE9)
+                para.add_run(split_text)
             else:
                 para.add_run(split_text)
 
@@ -368,7 +368,7 @@ def make_word(file_path,search_start):
         para.add_run("\n")
         for index, split_text2 in enumerate(split_texts2):
             if index % 2 == determinant2:
-                para.add_run(split_text2).font.color.rgb = RGBColor(0xFF, 0x24, 0xE9)
+                para.add_run(split_text2)
             else:
                 para.add_run(split_text2)
         # for sentence_search_elem in sentence_search_list:
@@ -448,7 +448,7 @@ def get_list(keyword,start_date,end_date,page_no):
 
     response = requests.post('https://www.bigkinds.or.kr/api/news/search.do', cookies=cookies, headers=headers,
                              json=json_data)
-
+    print(response.text)
     return response
     # Note: json_data will not be serialized by requests
     # exactly as it was in the original request.
@@ -497,12 +497,14 @@ def get_keyword():
     name=ws.cell(row=2,column=2).value
     position=ws.cell(row=3,column=2).value
     position_list=position.split(",")
-    add_on_list=['은','는','도']
+    add_on_list=['은','는','도','이','가',' 역시']
     keyword_list=[]
     for i in range(0,2): # 성 분화
         if i==1:
             name=name[0]
         for position_elem in position_list: #직책 분화
+            position_elem_garo=name+" "+position_elem+"("
+            keyword_list.append(position_elem_garo)
             for add_on_elem in add_on_list: #토씨분화
                 name_add_on=name+" "+position_elem+add_on_elem
                 keyword_list.append(name_add_on)
@@ -517,12 +519,13 @@ def get_passage_list(fname):
     for index, line in enumerate(rdr):
         if index == 0:
             continue
-        data=[index+1,line[0],line[1],line[2],line[3],line[4].replace('“','"').replace('”','"').replace('""','"').replace("\t",""),line[5],line[6]]
+        data=[index+1,line[0],line[1],line[2],line[3],line[4].replace('“','"').replace('”','"').replace('""','"').replace("\t",""),"",line[5]]
+        print(data)
         origin_passage_list.append(data)
     j.close()
     return origin_passage_list
 
-def find_sentence_passage(origin_passage_list,keyword_list,start_word_list):
+def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,explanation_list,additional_word_list):
     #한개의 글에 대해서 문장으로 나누기
     search_result_total=[] # 전체 검색 결과
 
@@ -541,6 +544,15 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list):
 
         ddaomb_group=[]
         ddaomb_set = []
+
+        #숫자 안에 있는 점은 다른걸로 바꿈
+        regex = re.compile("\d+.\d+")
+        for regex_elem in regex.finditer(origin_passage_elem[5]):
+            changed_regex = regex_elem.group().replace(".", '#')
+            print(changed_regex)
+            origin_passage_elem[5] = origin_passage_elem[5].replace(regex_elem.group(), changed_regex)
+
+
         for index,i in enumerate(origin_passage_elem[5]): #따옴표 셋트 위치 찾기
             if i=='"':
                 ddaomb_set.append(index)
@@ -590,6 +602,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list):
         #기존에 충족했는지 여부를 저장
         check_deque=deque([0,0,0,0,0],maxlen=5)
         for index_sentence_elem,sentence_elem in enumerate(sentence_list):
+            print()
             check_index=0 #검출됐는지를 체크하는 인덱스
             search_result_sentence=""
             print('sentence_elem',sentence_elem)
@@ -637,7 +650,14 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list):
                         sentence_outer_all=sentence_outer_all.replace(sentence_inner_elem,"")
 
 
+            #★★★★★★★★★★★★★★★★★★★★기준에 충족하는지 여부 확인 하는 부분★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+            check_index=0
+
+
+
+
             for keyword_elem in keyword_list: # 안쪽과 바깥쪽에 단어 여부 확인
+                # if sentence_inner_all.find(keyword_elem)<0 and sentence_outer_all.find(keyword_elem)>=0:
                 if sentence_inner_all.find(keyword_elem)<0 and sentence_outer_all.find(keyword_elem)>=0:
                     print('케이스1의 문장')
                     # print('sentence_inner_all:',sentence_inner_all)
@@ -645,45 +665,122 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list):
                     search_result_sentence=sentence_elem
                     check_index=1
 
-            explanation_list=['고 내다봤','고 논평','고 답변','고 답했','고 덧붙','고 반박','고 밝혔','고 비판','고 설명','고 썼','고 압박','고 언급','을 언급','고 역설','고 예상','고 요구',
-                              '고 우려','고 일갈','고 일축','고 적었','고 전했','고 주장','고 지적','고 직격',' 고 진화','고 촉구','고 해석','고 강하게 비판',
-                              '고 했','고 말했','고 말하기도','고 강조','고 거들었','고 경고','고 공격','고 반문']
+
+            search_all_list=keyword_list+explanation_list
+            for search_all_elem in search_all_list:
+                if sentence_inner_all.find(keyword_elem)<0 and sentence_outer_all.find(search_all_elem)>=0:
+                        print('케이스2의 문장')
+                        # print('sentence_inner_all:',sentence_inner_all)
+                        # print('new_sentence_outer_all:',sentence_outer_all)
+                        search_result_sentence=sentence_elem
+                        check_index = 2
+
+
+
 
             # 핵심키워드말고 추가 서술에도 고려하여 검색
-            for keyword_elem in keyword_list:
-                if sentence_elem.find(keyword_elem)>=0:
-                    for explanation_elem in explanation_list:
-                        if sentence_elem.find(explanation_elem)>=0:
-                            print("케이스2의 문장")
-                            search_result_sentence=sentence_elem
-                            check_index = 1
-                            # print("서술어와 핵심키워드로 인한 선택")
+            search_all_list = start_word_list+additional_word_list
+            if check_deque[-1]==1 or check_deque[-1]==2:
+                for search_all_elem in search_all_list:
+                    if sentence_outer_all.find(search_all_elem)>=0:
+                        print('케이스3-1의 문장')
+                        # print('sentence_inner_all:',sentence_inner_all)
+                        # print('new_sentence_outer_all:',sentence_outer_all)
+                        search_result_sentence=sentence_elem
+                        check_index = 3
 
-            additional_word_list=['대해','대해선','대해서는','대해서도','관해','관해선','관해서는','관해서도','관련해서는','관련해선',
-                                  '묻자','향해서는','지적엔','지적에는','지적에도','질문에는','질문에','질문엔','질문에도']
 
-            additional_start_word_list = additional_word_list + start_word_list
-            for additional_start_word_elem in additional_start_word_list: # 안쪽과 바깥쪽에 단어 여부 확인
-                if sentence_inner_all.find(additional_start_word_elem)<0 and sentence_outer_all.find(additional_start_word_elem)>=0 and (check_deque[-2]==1 or check_deque[-3]==1):
-                    print('케이스3의 문장')
+            search_all_list = start_word_list + explanation_list
+            if check_deque[-1]==1 or check_deque[-1]==2:
+                for search_all_elem in search_all_list:
+                    if sentence_outer_all.find(search_all_elem)>=0:
+                        print('케이스3-2의 문장')
+                        # print('sentence_inner_all:',sentence_inner_all)
+                        # print('new_sentence_outer_all:',sentence_outer_all)
+                        search_result_sentence=sentence_elem
+                        check_index = 3
+
+            if check_deque[-1]==1 or check_deque[-1]==2:
+                if sentence_outer_all.startswith('"') or sentence_outer_all.startswith('그러나 "') :
+                    print('케이스3-3의 문장')
                     # print('sentence_inner_all:',sentence_inner_all)
                     # print('new_sentence_outer_all:',sentence_outer_all)
                     search_result_sentence=sentence_elem
-                    # check_index=1
+                    check_index = 3
 
 
-            for additional_start_word_elem in additional_start_word_list:
-                if (check_deque[-2]==1 or check_deque[-3]==1) and sentence_elem.find('"')==0:
-                    print("케이스4의 문장")
-                    search_result_sentence=sentence_elem
-
-
-            daemyung_list=['그는','그들은','이들은']
+            search_all_list = start_word_list + additional_word_list
             for keyword_elem in keyword_list:
-                for daemyung_elem in daemyung_list:
-                    if index_sentence_elem!=0 and sentence_list[index_sentence_elem-1].find(keyword_elem)>=0 and sentence_elem.find('"')>=0 and sentence_elem.find(daemyung_elem)>=0:
-                        print("케이스5의 문장")
+                if sentence_list[index_sentence_elem-1].find(keyword_elem)>=0:
+                    for search_all_elem in search_all_list:
+                            if sentence_outer_all.find(search_all_elem) >= 0:
+                                print('케이스4-1의 문장')
+                                # print('sentence_inner_all:',sentence_inner_all)
+                                # print('new_sentence_outer_all:',sentence_outer_all)
+                                search_result_sentence = sentence_elem
+                                check_index = 4
+
+            search_all_list = start_word_list + additional_word_list+explanation_list
+            for keyword_elem in keyword_list:
+                if sentence_list[index_sentence_elem-1].find(keyword_elem)>=0:
+                    for search_all_elem in search_all_list:
+                            if sentence_outer_all.find(search_all_elem) >= 0:
+                                print('케이스4-2의 문장')
+                                # print('sentence_inner_all:',sentence_inner_all)
+                                # print('new_sentence_outer_all:',sentence_outer_all)
+                                search_result_sentence = sentence_elem
+                                check_index = 4
+
+
+            for keyword_elem in keyword_list:
+                if sentence_list[index_sentence_elem-1].find(keyword_elem)>=0:
+                        if sentence_elem.startswith('"') >= 0:
+                            print('케이스4-3의 문장')
+                            # print('sentence_inner_all:',sentence_inner_all)
+                            # print('new_sentence_outer_all:',sentence_outer_all)
+                            search_result_sentence = sentence_elem
+                            check_index = 4
+
+            search_all_list = start_word_list+additional_word_list
+            if check_deque[-1]==3 or check_deque[-2]==3:
+                for search_all_elem in search_all_list:
+                    if sentence_outer_all.find(search_all_elem)>=0:
+                        print('케이스5-1의 문장')
+                        # print('sentence_inner_all:',sentence_inner_all)
+                        # print('new_sentence_outer_all:',sentence_outer_all)
                         search_result_sentence=sentence_elem
+                        check_index = 5
+
+            search_all_list = start_word_list + additional_word_list+explanation_list
+            if check_deque[-1] == 3 or check_deque[-2] == 3:
+                for search_all_elem in search_all_list:
+                    if sentence_outer_all.find(search_all_elem) >= 0:
+                        print('케이스5-2의 문장')
+                        # print('sentence_inner_all:',sentence_inner_all)
+                        # print('new_sentence_outer_all:',sentence_outer_all)
+                        search_result_sentence = sentence_elem
+                        check_index = 5
+
+            search_all_list = start_word_list+additional_word_list
+            if check_deque[-1]==4 or check_deque[-2]==4:
+                for search_all_elem in search_all_list:
+                    if sentence_outer_all.find(search_all_elem)>=0:
+                        print('케이스5-3의 문장')
+                        # print('sentence_inner_all:',sentence_inner_all)
+                        # print('new_sentence_outer_all:',sentence_outer_all)
+                        search_result_sentence=sentence_elem
+                        check_index = 5
+
+            search_all_list = start_word_list + additional_word_list+explanation_list
+            if check_deque[-1] == 4 or check_deque[-2] == 4:
+                for search_all_elem in search_all_list:
+                    if sentence_outer_all.find(search_all_elem) >= 0:
+                        print('케이스5-4의 문장')
+                        # print('sentence_inner_all:',sentence_inner_all)
+                        # print('new_sentence_outer_all:',sentence_outer_all)
+                        search_result_sentence = sentence_elem
+                        check_index = 5
+
 
             search_result_passage=""
             for sentence_group_elem in sentence_group:
@@ -695,6 +792,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list):
                 print("★★★★★★★★★★★★★★★★★★★★★★★★★★★")
                 print('search_result:',search_result_sentence)
                 print('search_passage:',search_result_passage)
+                print("check_deque:",check_deque)
                 # data = [index, line[0], line[1], line[2], line[3], line[4].replace('“', '"').replace('”', '"').replace('""', '"').replace("\n", "").replace("\t",""),line[5], line[6]]
 
                 data=[origin_passage_elem[0],origin_passage_elem[1],origin_passage_elem[2],origin_passage_elem[3],origin_passage_elem[4],origin_passage_elem[7],search_result_passage,search_result_sentence]
@@ -818,12 +916,10 @@ class Thread(QThread):
         self.total_end_date=total_end_date
 
     def run(self):
-
         datetime_now = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-
         f = open('RESULT_{}_{}.csv'.format(self.keyword, datetime_now), 'w', encoding='utf-8-sig', newline="")
         wr = csv.writer(f)
-        wr.writerow(['URL', "신문사", "제목", "날짜", "전문", "그림파일", "기자"])
+        wr.writerow(['URL', "신문사", "제목", "날짜", "전문", "기자"])
 
         for num_page in range(1,9999):
             text="{}번째 페이지 크롤링 중...".format(num_page)
@@ -866,7 +962,7 @@ class Thread(QThread):
                 print("이미지URL:", image_url_list)
                 print("----------------")
                 time.sleep(0.5)
-                data=[provider_url,provider,title,news_date,contents,image_url,reporter]
+                data=[provider_url,provider,title,news_date,contents,reporter]
                 wr.writerow(data)
 
         f.close()
@@ -890,7 +986,7 @@ class Example(QMainWindow,Ui_MainWindow):
         time_1month_ago_month = int(time_1month_ago.strftime("%m"))
         time_1month_ago_day = int(time_1month_ago.strftime("%d"))
         self.dateEdit.setDate(QDate(time_1month_ago_year,time_1month_ago_month,time_1month_ago_day))
-        self.auth_flag=False
+        self.auth_flag=True
         self.first_flag=True
         self.lineEdit_5.setPlaceholderText("프로그램 번호를 입력하세요")
 
@@ -985,21 +1081,27 @@ class Example(QMainWindow,Ui_MainWindow):
             return
 
         keyword_list = get_keyword()
-        start_word_list = ['그러면서', '그는', '그들은', '이들은', '또 ', '이어', '나아가', '아울러', '계속해서', '또한']
-        origin_passage_list = get_passage_list(self.fname)
-        print('origin_passage_list:',origin_passage_list)
-        search_result_total = find_sentence_passage(origin_passage_list,keyword_list,start_word_list)
-
+        start_word_list = ['그러면서', '그는', '그들은', '이들은', '또 ', '이어', '나아가', '아울러', '계속해서', '또한','다만','즉','따라서','이에','그러면서도']
         explanation_list = ['고 내다봤', '고 논평', '고 답변', '고 답했', '고 덧붙', '고 반박', '고 밝혔', '고 비판', '고 설명', '고 썼', '고 압박',
                             '고 언급', '을 언급', '고 역설', '고 예상', '고 요구',
                             '고 우려', '고 일갈', '고 일축', '고 적었', '고 전했', '고 주장', '고 지적', '고 직격', ' 고 진화', '고 촉구', '고 해석',
-                            '고 강하게 비판','고 했','고 말했','고 말하기도','고 강조','고 거들었','고 경고','고 공격','고 반문']
-        additional_word_list = ['대해', '대해선', '대해서는', '대해서도', '관해', '관해선', '관해서는', '관해서도', '관련해서는', '관련해선',
-                                '묻자', '향해서는', '지적엔', '지적에는', '지적에도', '질문에는', '질문에', '질문엔', '질문에도']
+                            '고 강하게 비판', '고 했', '고 말했', '고 말하기도', '고 강조', '고 거들었', '고 경고', '고 공격', '고 반문','고 꼬집었',
+                            '며 꼬집었','고 당부','고 되물었','고 따졌','고 따져물었','며 말을 아꼈','면서도 말을 아꼇','고 맹공격','고 목소리를 높였',
+                            '며 물러서지 않았','고 물었','고 반격','고 반문','반응을 보였','고 밝히','고 보탰','고 선을 그었','고 쏘아붙였','고 쓴소리',
+                            '고 약속','고 역공','고 진단','고 질의','고 평가','고 표출','고 두둔','고 직격탄을 날렸','고 질타','며 즉답을 피했',
+                            '고 추궁','고 추측','고 해명','고 호소','고도 했']
+        additional_word_list = ['대해선', '대해서는', '대해서도', '관해', '관해선', '관해서는', '관해서도', '관련해서는', '관련해선',
+                                '묻자', '향해서는', '지적엔', '지적에는', '지적에도', '질문에는', '질문에', '질문엔', '질문에도','물음에는',
+                                '물음엔','지적하자','지적에는','질의에는','질의엔','조언으로는','두고는','두곤','방안으로는','시각에는','년에는']
+        origin_passage_list = get_passage_list(self.fname)
+        print('origin_passage_list:',origin_passage_list)
+        search_result_total = find_sentence_passage(origin_passage_list,keyword_list,start_word_list,explanation_list,additional_word_list)
+
+
 
         doc = Document()
         for search_result_elem in search_result_total:
-            # search_result_elem=search_result_total[-1]
+            print('search_result_elem:',search_result_elem)
 
 
             keyword_list_start_word_list = keyword_list + start_word_list+ explanation_list+additional_word_list
@@ -1035,7 +1137,7 @@ class Example(QMainWindow,Ui_MainWindow):
             para.add_run("6.기자 : ")
             para.add_run(str(search_result_elem[5]))
             para.add_run("\n")
-            para.add_run("8.발췌문단 : ")
+            para.add_run("7.발췌문단 : ")
             para.add_run("\n")
             para.add_run(str(search_result_elem[-2]))
             para.add_run("\n")
@@ -1057,12 +1159,12 @@ class Example(QMainWindow,Ui_MainWindow):
                 for index, split_result_elem in enumerate(split_result_list):
                     if even_odd_flag=='even':
                         if index%2==0:
-                            para.add_run(split_result_elem).font.color.rgb = RGBColor(0xFF, 0x24, 0xE9)
+                            para.add_run(split_result_elem)
                         else:
                             para.add_run(split_result_elem)
                     else:
                         if index%2==1:
-                            para.add_run(split_result_elem).font.color.rgb = RGBColor(0xFF, 0x24, 0xE9)
+                            para.add_run(split_result_elem)
                         else:
                             para.add_run(split_result_elem)
 
