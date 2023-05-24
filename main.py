@@ -85,10 +85,10 @@ def make_word(file_path,search_start):
                 # print(start,end)
                 sequence_list.append([start, end])
         sequence_list.sort(key=lambda x: x[0])
-        print("리스트는:", sequence_list)
+        # print("리스트는:", sequence_list)
         new_list = sequence_list.copy()
-        print("카피된리스트는:", new_list)
-        print("요소갯수는:", len(sequence_list))
+        # print("카피된리스트는:", new_list)
+        # print("요소갯수는:", len(sequence_list))
         for index, elem in enumerate(sequence_list):
             if index != len(sequence_list) - 1:
                 if elem[1] >= sequence_list[index + 1][0]:
@@ -101,13 +101,13 @@ def make_word(file_path,search_start):
                 result.append(value)
 
         sequence_list = result
-        print("중복제거된리스트:", sequence_list)
+        # print("중복제거된리스트:", sequence_list)
         if sequence_list[0][0] == 0:
             odd_flag = False
         else:
             odd_flag = True
 
-        print("행열갯수는:", len(sequence_list))
+        # print("행열갯수는:", len(sequence_list))
         addon = []
         for i in range(0, len(sequence_list) + 1):
             addon.append(2 * i)
@@ -127,7 +127,7 @@ def make_word(file_path,search_start):
                 else:
                     elem[0] = sequence_list[index - 1][1]
                     elem[1] = sequence_list[index + 1][0]
-        print(sequence_list)
+        # print(sequence_list)
 
         split_text = []
         for result in sequence_list:
@@ -136,7 +136,7 @@ def make_word(file_path,search_start):
             split_text.append(output)
 
         split_texts = list(filter(None, split_text))
-        print(split_texts)
+        # print(split_texts)
 
         return split_texts, odd_flag
 
@@ -152,13 +152,13 @@ def make_word(file_path,search_start):
     f.close()
 
     # data_csv가 읽어온 데이타 전부
-    print("data_csv:",data_csv)
+    # print("data_csv:",data_csv)
     no_row = len(data_csv)
-    print("행의수:", no_row)
+    # print("행의수:", no_row)
     text_list = []
     for i in range(0, no_row):
         is_result = len(data_csv[i])
-        print("is_result:",is_result)
+        # print("is_result:",is_result)
         if is_result >= 8:
             print("발췌문있다.{}번째".format(i))
             for j in range(7, is_result):
@@ -168,7 +168,7 @@ def make_word(file_path,search_start):
                     [i + 2, j + 1, data_csv[i][j], data_csv[i][0], data_csv[i][1], data_csv[i][2], data_csv[i][3],
                      data_csv[i][6]])
 
-    print("텍스트리스트:", text_list)
+    # print("텍스트리스트:", text_list)
 
 
 
@@ -195,11 +195,11 @@ def make_word(file_path,search_start):
     name = keyword_first[0]
     title = keyword_first[1]
     if title.find(",")>=0:
-        print("쉼표있음")
+        # print("쉼표있음")
         title_list=title.split(",")
-        print("title_list:",title_list)
+        # print("title_list:",title_list)
     else:
-        print("쉼표없음")
+        # print("쉼표없음")
         title_list=[title]
     new_keyword_first = []
     for title_elem in title_list:
@@ -220,8 +220,8 @@ def make_word(file_path,search_start):
     keyword_first.append('"')
     keyword_first.append('"')
     keyword_first_only_for_search=keyword_first[:-4]
-    print("2.keyword_first_only_for_search:", keyword_first_only_for_search)
-    print("2.keyword_first:", keyword_first)
+    # print("2.keyword_first_only_for_search:", keyword_first_only_for_search)
+    # print("2.keyword_first:", keyword_first)
 
 
     doc = Document()
@@ -232,7 +232,7 @@ def make_word(file_path,search_start):
         try:
             split_texts, odd_flag = make_list(search_text, text[2])
         except:
-            print("스프릿안됨")
+            # print("스프릿안됨")
             split_texts,odd_flag=make_list(search_start,text[2])
 
         if odd_flag == True:
@@ -245,7 +245,7 @@ def make_word(file_path,search_start):
 
         sentence_elem_split = text[2].split(".")
         sentence_each_list.extend(sentence_elem_split)
-        print('sentence_each_list:', sentence_each_list)
+        # print('sentence_each_list:', sentence_each_list)
 
         new_one = []
         for sentence_each_elem in sentence_each_list:  # 문장단위로 쪼갠것에서 빈 요소 지우기
@@ -263,15 +263,15 @@ def make_word(file_path,search_start):
                 position_fr = sentence_each_elem.find("“")
                 position_rr = sentence_each_elem.find("”")
                 if position_fr < 0 or position_rr < 0:
-                    print("따옴표 한쪽만 있어서 에러로 간주")
+                    # print("따옴표 한쪽만 있어서 에러로 간주")
                     continue
 
-                print('keyword_first_first_only_for_serach:', keyword_first_only_for_search)
-                print("sentence_each_elem:", sentence_each_elem)
+                # print('keyword_first_first_only_for_serach:', keyword_first_only_for_search)
+                # print("sentence_each_elem:", sentence_each_elem)
 
                 for keyword_first_elem in keyword_first_only_for_search:
                     position_keyword = sentence_each_elem.find(keyword_first_elem)
-                    print(position_keyword,position_fr,position_rr,len(sentence_each_elem))
+                    # print(position_keyword,position_fr,position_rr,len(sentence_each_elem))
                     if 0 <= position_keyword < position_fr or position_rr < position_keyword < len(sentence_each_elem):
                         sentence_search_list.append(sentence_each_elem_origin)
             elif sentence_each_elem.find('"')>=0:
@@ -279,9 +279,9 @@ def make_word(file_path,search_start):
                 cut_index=[]
                 for elem in regex.finditer(sentence_each_elem):
                     cut_index.append(elem.start())
-                print(cut_index)
+                # print(cut_index)
                 result = cut_list(cut_index, 2)
-                print("cut_list", result)
+                # print("cut_list", result)
                 for elem in result:
                     if len(elem)==1:
                         result=result[:-1]
@@ -293,30 +293,30 @@ def make_word(file_path,search_start):
                 for elem in result:
                     text_cut = sentence_each_elem[elem[0]:elem[1] + 1]
                     text_list.append(text_cut)
-                print("따옴표안쪽텍스트:",text_list)
+                # print("따옴표안쪽텍스트:",text_list)
                 inner_find=True
                 for text_elem in text_list:
                     for keyword_first_elem in keyword_first_only_for_search:
                         if text_elem.find(keyword_first_elem)>=0:
                             inner_find=False
-                print("inner_find:",inner_find)
+                # print("inner_find:",inner_find)
 
                 for text_elem in text_list:
                     result = sentence_each_elem.replace(text_elem, "")
                     sentence_each_elem = result
-                print(result)
+                # print(result)
 
                 outer_find = False
                 for keyword_first_elem in keyword_first_only_for_search:
                     if result.find(keyword_first_elem)>=0:
                         outer_find=True
-                print('outer_find:',outer_find)
+                # print('outer_find:',outer_find)
                 if inner_find==True and outer_find==True:
                     sentence_search_list.append(sentence_each_elem_origin)
 
 
 
-        print('sentence_search_list:', sentence_search_list)
+        # print('sentence_search_list:', sentence_search_list)
 
         #-------------------문장 색칠 쪼개기
         split_texts2=[]
@@ -448,7 +448,7 @@ def get_list(keyword,start_date,end_date,page_no):
 
     response = requests.post('https://www.bigkinds.or.kr/api/news/search.do', cookies=cookies, headers=headers,
                              json=json_data)
-    print(response.text)
+    # print(response.text)
     return response
     # Note: json_data will not be serialized by requests
     # exactly as it was in the original request.
@@ -508,7 +508,7 @@ def get_keyword():
             for add_on_elem in add_on_list: #토씨분화
                 name_add_on=name+" "+position_elem+add_on_elem
                 keyword_list.append(name_add_on)
-    print('keyword_list:',keyword_list)
+    # print('keyword_list:',keyword_list)
     return keyword_list
 
 def get_passage_list(fname):
@@ -520,7 +520,7 @@ def get_passage_list(fname):
         if index == 0:
             continue
         data=[index+1,line[0],line[1],line[2],line[3],line[4].replace('“','"').replace('”','"').replace('""','"').replace("\t",""),"",line[5]]
-        print(data)
+        # print(data)
         origin_passage_list.append(data)
     j.close()
     return origin_passage_list
@@ -528,19 +528,9 @@ def get_passage_list(fname):
 def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,explanation_list,additional_word_list):
     #한개의 글에 대해서 문장으로 나누기
     search_result_total=[] # 전체 검색 결과
-
+    count = 0
     for origin_passage_elem in origin_passage_list:
-        print('origin_passage_elem[5]:',origin_passage_elem[5])
-
-        # point_group=[]
-        # regex=re.compile(".")
-        # point_couple=[] # 포인트2개쌍
-        # for index_regex,regex_elem in enumerate(regex.finditer(origin_passage_elem[5])):
-        #     point_couple.append(regex_elem.start())
-        #     if index_regex%2==1:
-        #         point_group.append(point_couple)
-        #         point_couple=[]
-        # print('point_group:',point_group)
+        # print('origin_passage_elem[5]:',origin_passage_elem[5])
 
         ddaomb_group=[]
         ddaomb_set = []
@@ -549,7 +539,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
         regex = re.compile("\d+.\d+")
         for regex_elem in regex.finditer(origin_passage_elem[5]):
             changed_regex = regex_elem.group().replace(".", '#')
-            print(changed_regex)
+            # print(changed_regex)
             origin_passage_elem[5] = origin_passage_elem[5].replace(regex_elem.group(), changed_regex)
 
 
@@ -559,7 +549,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
             if len(ddaomb_set)==2:
                 ddaomb_group.append(ddaomb_set)
                 ddaomb_set=[]
-        print('ddaomb_group:',ddaomb_group)
+        # print('ddaomb_group:',ddaomb_group)
 
         position_point=[]
         for index,i in enumerate(origin_passage_elem[5]):
@@ -571,7 +561,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
             for ddaomb_group_elem in ddaomb_group:
                 if ddaomb_group_elem[0]<=position_point_elem<=ddaomb_group_elem[1]:
 
-                    print("따옴표 사이 점 슬래시로 치환",position_point_elem)
+                    # print("따옴표 사이 점 슬래시로 치환",position_point_elem)
                     # print(origin_passage_elem[5][position_point_elem])
                     new_origin_passage_elem=list(origin_passage_elem[5])
                     new_origin_passage_elem[position_point_elem]="/"
@@ -587,7 +577,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                 sentence_elem=sentence_elem.strip()
                 new_sentence_list.append(sentence_elem)
         sentence_list=new_sentence_list
-        print('sentence_list:',sentence_list)
+        # print('sentence_list:',sentence_list)
 
         #문단만들기
         sentence_group=origin_passage_elem[5].split("\n")
@@ -596,16 +586,17 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
             if len(sentence_group)>=0:
                 new_sentence_group.append(sentence_group_elem)
         sentence_group=new_sentence_group
-        print('sentence_group:',sentence_group)
+        # print('sentence_group:',sentence_group)
 
 
         #기존에 충족했는지 여부를 저장
         check_deque=deque([0,0,0,0,0],maxlen=5)
+        test=[]
+
         for index_sentence_elem,sentence_elem in enumerate(sentence_list):
-            print()
+            # print('sentence_elem:',sentence_elem)
             check_index=0 #검출됐는지를 체크하는 인덱스
             search_result_sentence=""
-            print('sentence_elem',sentence_elem)
             regex=re.compile('"')
             regex.finditer(sentence_elem)
 
@@ -614,7 +605,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
             for regex_elem in regex.finditer(sentence_elem):
                 # print(regex_elem.start())
                 spliter_list.append(regex_elem.start())
-            print("spliter_length:",len(spliter_list))
+            # print("spliter_length:",len(spliter_list))
 
             spliter_list = []
             spliter_set = []
@@ -634,7 +625,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                     pass
                     spliter_list.append(spliter_set)
                     spliter_set = []
-            print('spliter_list:',spliter_list)
+            # print('spliter_list:',spliter_list)
             sentence_inner_all=""
             sentence_inner_list=[]
             sentence_outer_all=""
@@ -652,11 +643,9 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
 
             #★★★★★★★★★★★★★★★★★★★★기준에 충족하는지 여부 확인 하는 부분★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
             check_index=0
+            print("sentence_elem:",sentence_elem)
 
-
-
-
-            for keyword_elem in keyword_list: # 안쪽과 바깥쪽에 단어 여부 확인
+            for index,keyword_elem in enumerate(keyword_list): # 안쪽과 바깥쪽에 단어 여부 확인
                 # if sentence_inner_all.find(keyword_elem)<0 and sentence_outer_all.find(keyword_elem)>=0:
                 if sentence_inner_all.find(keyword_elem)<0 and sentence_outer_all.find(keyword_elem)>=0:
                     print('케이스1의 문장')
@@ -666,9 +655,11 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                     check_index=1
 
 
-            search_all_list=keyword_list+explanation_list
-            for search_all_elem in search_all_list:
-                if sentence_inner_all.find(keyword_elem)<0 and sentence_outer_all.find(search_all_elem)>=0:
+
+            for keyword_elem in keyword_list:  # 안쪽과 바깥쪽에 단어 여부 확인
+                # print(keyword_elem)
+                for explanation_elem in explanation_list:
+                    if sentence_inner_all.find(keyword_elem)<0 and sentence_outer_all.find(keyword_elem)>=0 and sentence_outer_all.find(explanation_elem)>=0:
                         print('케이스2의 문장')
                         # print('sentence_inner_all:',sentence_inner_all)
                         # print('new_sentence_outer_all:',sentence_outer_all)
@@ -734,7 +725,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
 
             for keyword_elem in keyword_list:
                 if sentence_list[index_sentence_elem-1].find(keyword_elem)>=0:
-                        if sentence_elem.startswith('"') >= 0:
+                        if sentence_elem.startswith('"'):
                             print('케이스4-3의 문장')
                             # print('sentence_inner_all:',sentence_inner_all)
                             # print('new_sentence_outer_all:',sentence_outer_all)
@@ -745,7 +736,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
             if check_deque[-1]==3 or check_deque[-2]==3:
                 for search_all_elem in search_all_list:
                     if sentence_outer_all.find(search_all_elem)>=0:
-                        print('케이스5-1의 문장')
+                        print('케이스5-1의 문장 {}'.format(check_deque))
                         # print('sentence_inner_all:',sentence_inner_all)
                         # print('new_sentence_outer_all:',sentence_outer_all)
                         search_result_sentence=sentence_elem
@@ -755,7 +746,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
             if check_deque[-1] == 3 or check_deque[-2] == 3:
                 for search_all_elem in search_all_list:
                     if sentence_outer_all.find(search_all_elem) >= 0:
-                        print('케이스5-2의 문장')
+                        print('케이스5-2의 문장 {}'.format(check_deque))
                         # print('sentence_inner_all:',sentence_inner_all)
                         # print('new_sentence_outer_all:',sentence_outer_all)
                         search_result_sentence = sentence_elem
@@ -765,7 +756,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
             if check_deque[-1]==4 or check_deque[-2]==4:
                 for search_all_elem in search_all_list:
                     if sentence_outer_all.find(search_all_elem)>=0:
-                        print('케이스5-3의 문장')
+                        print('케이스5-3의 문장 {}'.format(check_deque))
                         # print('sentence_inner_all:',sentence_inner_all)
                         # print('new_sentence_outer_all:',sentence_outer_all)
                         search_result_sentence=sentence_elem
@@ -775,7 +766,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
             if check_deque[-1] == 4 or check_deque[-2] == 4:
                 for search_all_elem in search_all_list:
                     if sentence_outer_all.find(search_all_elem) >= 0:
-                        print('케이스5-4의 문장')
+                        print('케이스5-4의 문장 {}'.format(check_deque))
                         # print('sentence_inner_all:',sentence_inner_all)
                         # print('new_sentence_outer_all:',sentence_outer_all)
                         search_result_sentence = sentence_elem
@@ -788,18 +779,21 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                     search_result_passage=sentence_group_elem
 
             check_deque.append(check_index) #현재 선택됐는지 여부를 데크에 저장
+            status=
             if len(search_result_sentence)>=1:
-                print("★★★★★★★★★★★★★★★★★★★★★★★★★★★")
-                print('search_result:',search_result_sentence)
-                print('search_passage:',search_result_passage)
-                print("check_deque:",check_deque)
+                # print("★★★★★★★★★★★★★★★★★★★★★★★★★★★")
+                # print('search_result:',search_result_sentence)
+                # print('search_passage:',search_result_passage)
+                # print("check_deque:",check_deque)
                 # data = [index, line[0], line[1], line[2], line[3], line[4].replace('“', '"').replace('”', '"').replace('""', '"').replace("\n", "").replace("\t",""),line[5], line[6]]
+                # test.append(search_result_sentence)
 
-                data=[origin_passage_elem[0],origin_passage_elem[1],origin_passage_elem[2],origin_passage_elem[3],origin_passage_elem[4],origin_passage_elem[7],search_result_passage,search_result_sentence]
-                print('data:', data)
+                data=[origin_passage_elem[0],origin_passage_elem[1],origin_passage_elem[2],origin_passage_elem[3],origin_passage_elem[4],origin_passage_elem[7],search_result_passage.replace("#","."),search_result_sentence.replace("#","."),]
+                print('count:',count)
+                count=count+1
                 search_result_total.append(data)
-                print("data:",data)
-                print("★★★★★★★★★★★★★★★★★★★★★★★★★★★")
+                print("====================================")
+
     return search_result_total
 
 def split_text(sentence,position_keyword_color):
@@ -879,18 +873,18 @@ def split_text_advanced(text,keyword_list):
     # for new_num in new_nums:
     #     new_num[1]=new_num[1]+1
 
-    print('new_nums:',new_nums)
-    print('new_rest_nums:',new_rest_nums)
+    # print('new_nums:',new_nums)
+    # print('new_rest_nums:',new_rest_nums)
     total_nums=new_nums+new_rest_nums
     total_nums.sort(key=lambda x: x[0])
     for total_num in total_nums:
         total_num[1]=total_num[1]+1
-    print(total_nums)
+    # print(total_nums)
 
     split_text_list=[]
     for total_num in total_nums:
         split_text=text[total_num[0]:total_num[1]]
-        print(split_text)
+        # print(split_text)
         split_text_list.append(split_text)
 
 
@@ -898,8 +892,8 @@ def split_text_advanced(text,keyword_list):
         odd_even_flag="even"
     else:
         odd_even_flag = "odd"
-    print('split_text_list:',split_text_list)
-    print('odd_even_flag:',odd_even_flag)
+    # print('split_text_list:',split_text_list)
+    # print('odd_even_flag:',odd_even_flag)
     return split_text_list,odd_even_flag
 
 
@@ -987,6 +981,7 @@ class Example(QMainWindow,Ui_MainWindow):
         time_1month_ago_day = int(time_1month_ago.strftime("%d"))
         self.dateEdit.setDate(QDate(time_1month_ago_year,time_1month_ago_month,time_1month_ago_day))
         self.auth_flag=True
+        # self.auth_flag = False
         self.first_flag=True
         self.lineEdit_5.setPlaceholderText("프로그램 번호를 입력하세요")
 
@@ -1094,18 +1089,18 @@ class Example(QMainWindow,Ui_MainWindow):
                                 '묻자', '향해서는', '지적엔', '지적에는', '지적에도', '질문에는', '질문에', '질문엔', '질문에도','물음에는',
                                 '물음엔','지적하자','지적에는','질의에는','질의엔','조언으로는','두고는','두곤','방안으로는','시각에는','년에는']
         origin_passage_list = get_passage_list(self.fname)
-        print('origin_passage_list:',origin_passage_list)
+        # print('origin_passage_list:',origin_passage_list)
         search_result_total = find_sentence_passage(origin_passage_list,keyword_list,start_word_list,explanation_list,additional_word_list)
 
 
 
         doc = Document()
         for search_result_elem in search_result_total:
-            print('search_result_elem:',search_result_elem)
+            # print('search_result_elem:',search_result_elem)
 
 
             keyword_list_start_word_list = keyword_list + start_word_list+ explanation_list+additional_word_list
-            print('keyword_list_start_word_list:', keyword_list_start_word_list)
+            # print('keyword_list_start_word_list:', keyword_list_start_word_list)
 
             position_keyword_color = []
             for keyword_list_start_word_elem in keyword_list_start_word_list:
@@ -1115,7 +1110,7 @@ class Example(QMainWindow,Ui_MainWindow):
                     position_keyword_color = data
                     break
 
-            print('position_keyword_color:', position_keyword_color)
+            # print('position_keyword_color:', position_keyword_color)
 
 
             para = doc.add_paragraph("")
