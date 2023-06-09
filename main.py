@@ -69,9 +69,13 @@ def get_key(pc_no,first_flag):
             'databaseURL':"https://bigkinds-8d2eb-default-rtdb.asia-southeast1.firebasedatabase.app/"
         })
 
+
     ref=db.reference().get()
+
     result_password=ref['password'][pc_no]['password']
+    # print('result_password:',result_password)
     result_ip = ref['password'][pc_no]['ip']
+    # print('result_ip:',result_ip)
 
     return result_password, result_ip
 def make_word(file_path,search_start):
@@ -576,7 +580,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
         #각 문장에서 빈거 없애고, 양쪽에 공백 없애서 다시 넣기
         new_sentence_list=[]
         for sentence_elem in sentence_list:
-            if len(sentence_elem)>=2:
+            if len(sentence_elem)>=2 and sentence_elem.find("[사진기사]")<0:
                 sentence_elem=sentence_elem.strip()
                 new_sentence_list.append(sentence_elem)
         sentence_list=new_sentence_list
@@ -660,7 +664,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                     # print('new_sentence_outer_all:',sentence_outer_all)
                     search_result_sentence=sentence_elem
                     check_index=1
-
+            # print("111")
 
 
             for keyword_elem in keyword_list:  # 안쪽과 바깥쪽에 단어 여부 확인
@@ -675,7 +679,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                         search_result_sentence=sentence_elem
                         check_index = 2
 
-
+            # print("222")
 
 
             # 핵심키워드말고 추가 서술에도 고려하여 검색
@@ -691,6 +695,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                         search_result_sentence=sentence_elem
                         check_index = 3
 
+            # print("333")
 
             search_all_list = start_word_list + additional_word_list
             if check_deque[-1]==1 or check_deque[-1]==2:
@@ -705,6 +710,8 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                             search_result_sentence=sentence_elem
                             check_index = 3
 
+            # print("333")
+
             if check_deque[-1]==1 or check_deque[-1]==2:
                 if sentence_outer_all.startswith('"') or sentence_outer_all.startswith('그러나 "') :
                     text='케이스3-3의 문장 {}'.format(check_deque)
@@ -715,6 +722,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                     search_result_sentence=sentence_elem
                     check_index = 3
 
+            # print("333")
 
             search_all_list = start_word_list + additional_word_list
             for keyword_elem in keyword_list:
@@ -728,6 +736,8 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                                 # print('new_sentence_outer_all:',sentence_outer_all)
                                 search_result_sentence = sentence_elem
                                 check_index = 4
+
+            # print("444")
 
             search_all_list = start_word_list + additional_word_list
             for keyword_elem in keyword_list:
@@ -743,6 +753,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                                 search_result_sentence = sentence_elem
                                 check_index = 4
 
+            # print("555")
 
             for keyword_elem in keyword_list:
                 if sentence_list[index_sentence_elem-1].find(keyword_elem)>=0:
@@ -754,6 +765,8 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                             # print('new_sentence_outer_all:',sentence_outer_all)
                             search_result_sentence = sentence_elem
                             check_index = 4
+
+            # print("666")
 
             search_all_list = start_word_list+additional_word_list
             if check_deque[-2] == 1 or check_deque[-2] == 2:
@@ -768,6 +781,8 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                             search_result_sentence=sentence_elem
                             check_index = 5
 
+            # print("777")
+
             search_all_list = start_word_list + additional_word_list+explanation_list
             if check_deque[-2] == 1 or check_deque[-2] == 2:
                 if check_deque[-1] == 3:
@@ -781,36 +796,43 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                                 # print('new_sentence_outer_all:',sentence_outer_all)
                                 search_result_sentence = sentence_elem
                                 check_index = 5
-
-            search_all_list = start_word_list+additional_word_list
-            for keyword_elem in keyword_list:
-                if sentence_list[index_sentence_elem - 2].find(keyword_elem) >= 0:
-                    if check_deque[-1]==4:
-                        for search_all_elem in search_all_list:
-                            if sentence_outer_all.find(search_all_elem)>=0 and sentence_outer_all.find(search_all_elem)<sentence_outer_all.find("%%") :
-                                text='케이스5-3의 문장 {}'.format(check_deque)
-                                print(text)
-                                status = status + text+"\n"
-                                # print('sentence_inner_all:',sentence_inner_all)
-                                # print('new_sentence_outer_all:',sentence_outer_all)
-                                search_result_sentence=sentence_elem
-                                check_index = 5
-
-            search_all_list = start_word_list + additional_word_list+explanation_list
-            for keyword_elem in keyword_list:
-                if sentence_list[index_sentence_elem - 2].find(keyword_elem) >= 0:
-                    if check_deque[-1] == 4:
-                        for search_all_elem in search_all_list:
-                            for explanation_elem in explanation_list:
-                                if sentence_outer_all.find(search_all_elem) >= 0 and sentence_outer_all.find(search_all_elem)<sentence_outer_all.find("%%") and sentence_outer_all.find(explanation_elem)>=0 and sentence_outer_all.find(explanation_elem)>sentence_outer_all.find("%%"):
-                                    text='케이스5-4의 문장 {}'.format(check_deque)
+            # print("888")
+            try:
+                search_all_list = start_word_list+additional_word_list
+                for keyword_elem in keyword_list:
+                    if sentence_list[index_sentence_elem - 2].find(keyword_elem) >= 0:
+                        if check_deque[-1]==4:
+                            for search_all_elem in search_all_list:
+                                if sentence_outer_all.find(search_all_elem)>=0 and sentence_outer_all.find(search_all_elem)<sentence_outer_all.find("%%") :
+                                    text='케이스5-3의 문장 {}'.format(check_deque)
                                     print(text)
                                     status = status + text+"\n"
                                     # print('sentence_inner_all:',sentence_inner_all)
                                     # print('new_sentence_outer_all:',sentence_outer_all)
-                                    search_result_sentence = sentence_elem
+                                    search_result_sentence=sentence_elem
                                     check_index = 5
+            except:
+                print("케이스5-3점검 불가")
 
+            # print("999")
+            try:
+                search_all_list = start_word_list + additional_word_list+explanation_list
+                for keyword_elem in keyword_list:
+                    if sentence_list[index_sentence_elem - 2].find(keyword_elem) >= 0:
+                        if check_deque[-1] == 4:
+                            for search_all_elem in search_all_list:
+                                for explanation_elem in explanation_list:
+                                    if sentence_outer_all.find(search_all_elem) >= 0 and sentence_outer_all.find(search_all_elem)<sentence_outer_all.find("%%") and sentence_outer_all.find(explanation_elem)>=0 and sentence_outer_all.find(explanation_elem)>sentence_outer_all.find("%%"):
+                                        text='케이스5-4의 문장 {}'.format(check_deque)
+                                        print(text)
+                                        status = status + text+"\n"
+                                        # print('sentence_inner_all:',sentence_inner_all)
+                                        # print('new_sentence_outer_all:',sentence_outer_all)
+                                        search_result_sentence = sentence_elem
+                                        check_index = 5
+            except:
+                print("케이스5-4점검불가")
+            # print("10101010")
 
             search_result_passage=""
             for sentence_group_elem in sentence_group:
@@ -831,7 +853,7 @@ def find_sentence_passage(origin_passage_list,keyword_list,start_word_list,expla
                 count=count+1
                 search_result_total.append(data)
                 print("====================================")
-
+        print("------------------------------------------------")
     return search_result_total
 
 def split_text(sentence,position_keyword_color):
@@ -948,8 +970,9 @@ class Thread(QThread):
         self.total_end_date=total_end_date
 
     def run(self):
+        print(self.total_start_date,self.total_end_date)
         datetime_now = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        f = open('RESULT_{}_{}.csv'.format(self.keyword, datetime_now), 'w', encoding='utf-8-sig', newline="")
+        f = open('RESULT_{}_{}_{}.csv'.format(self.keyword, self.total_start_date.replace("-",""),self.total_end_date.replace("-","")), 'w', encoding='utf-8-sig', newline="")
         wr = csv.writer(f)
         wr.writerow(['URL', "신문사", "제목", "날짜", "전문", "기자"])
 
@@ -983,6 +1006,7 @@ class Thread(QThread):
                         image_url_list = image_url
                 except:
                     image_url = ""
+                    image_url_list=[]
                 news_date = json_detail['detail']['DATE']
                 reporter = json_detail['detail']['BYLINE']
                 provider_url=json_detail['detail']['PROVIDER_LINK_PAGE']
@@ -1066,15 +1090,22 @@ class Example(QMainWindow,Ui_MainWindow):
 
     def auth(self):
         text=str(self.lineEdit_5.text())
-        print(text)
-        result_password,result_ip = get_key("pc{}".format(text),self.first_flag)
-        print('나의_IP:',result_ip,'나의_PASSWORD:',result_password)
+        pcName="pc{}".format(text)
+        print('pcName:',pcName)
+        result_password,result_ip = get_key(pcName,self.first_flag)
+        result_ip=result_ip.replace('"','').replace("'","")
+        print('DB상_IP:',result_ip,'DB상_PASSWORD:',result_password)
         self.first_flag=False
         # print(result)
         self.password=self.lineEdit_4.text()
         # print('지정_IP:',socket.gethostbyname(socket.gethostname()),'현재_Password:',self.password)
-        print('지정된_IP:', socket.gethostbyname(socket.gethostname()))
-        if self.password==result_password and socket.gethostbyname(socket.gethostname())==result_ip:
+        # print('지정_IP:',socket.gethostbyname(socket.gethostname()),'현재_Password:',self.password)
+        myIP=str(socket.gethostbyname(socket.gethostname()))
+        print('내_IP:', myIP)
+        print(self.password,result_password,myIP,result_ip)
+        # print(type(self.password), type(result_password), type(myIP), type(result_ip))
+        # print(self.password,result_password,myIP,result_ip)
+        if self.password==result_password and myIP==result_ip:
             print("로그인 완료")
             self.auth_flag=True
             QMessageBox.information(self, "로그인", "인증이 성공하였습니다.")
